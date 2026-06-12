@@ -60,23 +60,10 @@ public class MovimentoService {
             int origemColuna,
             int destinoLinha,
             int destinoColuna,
-            int jogadorAtual) {
+            int jogadorAtual,
+            boolean capturaEmSequencia) {
 
         int[][] matriz = tabuleiro.getTabuleiro();
-
-        System.out.println("=== MOVIMENTO VALIDO ===");
-
-        System.out.println(
-                "Origem: "
-                        + origemLinha
-                        + ","
-                        + origemColuna);
-
-        System.out.println(
-                "Destino: "
-                        + destinoLinha
-                        + ","
-                        + destinoColuna);
 
         // destino fora
         if (destinoLinha < 0 ||
@@ -89,9 +76,6 @@ public class MovimentoService {
 
         // destino ocupado
         if (matriz[destinoLinha][destinoColuna] != 0) {
-
-            System.out.println(
-                    "DESTINO OCUPADO");
 
             return false;
         }
@@ -152,13 +136,21 @@ public class MovimentoService {
                         origemColuna);
 
         // existe captura no tabuleiro
-        if (existeCaptura) {
+        if (existeCaptura && !capturaEmSequencia) {
+
+            System.out.println(
+                    "capturasDaPeca = "
+                            + capturasDaPeca);
+
+            System.out.println(
+                    "maiorCaptura = "
+                            + maiorCaptura);
 
             // existe peça melhor para capturar
             if (capturasDaPeca < maiorCaptura) {
 
                 System.out.println(
-                        "BLOQUEADO PELA LEI DA MAIORIA");
+                        "REJEITADO PELA LEI DA MAIORIA");
 
                 return false;
             }
@@ -176,9 +168,6 @@ public class MovimentoService {
 
         // movimento diagonal
         if (diferencaColuna != Math.abs(diferencaLinha)) {
-
-            System.out.println(
-                    "NAO E DIAGONAL");
 
             return false;
         }

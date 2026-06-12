@@ -52,6 +52,11 @@ public class LeiMaioriaService {
         return copia;
     }
 
+    private int calcularCapturaDama(
+        Tabuleiro tabuleiro,
+        int linha,
+        int coluna)
+
     public int calcularMaiorSequenciaCaptura(
             Tabuleiro tabuleiro,
             int linha,
@@ -60,6 +65,14 @@ public class LeiMaioriaService {
         int[][] matriz = tabuleiro.getTabuleiro();
 
         int peca = matriz[linha][coluna];
+
+        if (peca == 3 || peca == 4) {
+
+            return calcularCapturaDama(
+                    tabuleiro,
+                    linha,
+                    coluna);
+        }
 
         // sem peça
         if (peca == 0) {

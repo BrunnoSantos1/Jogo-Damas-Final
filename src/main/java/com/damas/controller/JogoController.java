@@ -73,6 +73,29 @@ public class JogoController {
 
         Tabuleiro tabuleiro = jogoService.getTabuleiro();
 
+        System.out.println("================================");
+        System.out.println("JOGADA RECEBIDA PELO CONTROLLER");
+
+        System.out.println(
+                "Origem: "
+                        + movimento.getOrigemLinha()
+                        + ","
+                        + movimento.getOrigemColuna());
+
+        System.out.println(
+                "Destino: "
+                        + movimento.getDestinoLinha()
+                        + ","
+                        + movimento.getDestinoColuna());
+
+        System.out.println(
+                "Captura obrigatoria: "
+                        + jogoService.getLinhaCapturaObrigatoria()
+                        + ","
+                        + jogoService.getColunaCapturaObrigatoria());
+
+        System.out.println("================================");
+
         // =====================================================
         // CAPTURA EM SEQUÊNCIA OBRIGATÓRIA
         // =====================================================
@@ -87,13 +110,31 @@ public class JogoController {
             }
         }
 
+        System.out.println("================================");
+        System.out.println("JOGADA DO USUARIO");
+        System.out.println(
+                "Origem: "
+                        + movimento.getOrigemLinha()
+                        + ","
+                        + movimento.getOrigemColuna());
+
+        System.out.println(
+                "Destino: "
+                        + movimento.getDestinoLinha()
+                        + ","
+                        + movimento.getDestinoColuna());
+        System.out.println("================================");
+
+        boolean capturaEmSequencia = jogoService.getLinhaCapturaObrigatoria() != null;
+
         boolean valido = movimentoService.movimentoValido(
                 tabuleiro,
                 movimento.getOrigemLinha(),
                 movimento.getOrigemColuna(),
                 movimento.getDestinoLinha(),
                 movimento.getDestinoColuna(),
-                jogoService.getJogadorAtual());
+                jogoService.getJogadorAtual(),
+                capturaEmSequencia);
 
         if (!valido) {
 
@@ -150,6 +191,12 @@ public class JogoController {
 
     @GetMapping("/captura-obrigatoria")
     public int[] capturaObrigatoria() {
+
+        System.out.println(
+                "CAPTURA OBRIGATORIA -> "
+                        + jogoService.getLinhaCapturaObrigatoria()
+                        + ","
+                        + jogoService.getColunaCapturaObrigatoria());
 
         if (jogoService.getLinhaCapturaObrigatoria() == null) {
 

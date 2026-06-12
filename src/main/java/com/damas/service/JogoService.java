@@ -166,7 +166,8 @@ public class JogoService {
                                 coluna,
                                 destinoLinha,
                                 destinoColuna,
-                                jogador);
+                                jogador,
+                                false);
 
                         if (valido) {
 

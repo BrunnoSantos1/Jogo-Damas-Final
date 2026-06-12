@@ -354,7 +354,14 @@ async function obterCapturaObrigatoria() {
         await fetch(
             "/jogo/captura-obrigatoria");
 
-    return await resposta.json();
+    const dados =
+        await resposta.json();
+
+    console.log(
+        "CAPTURA OBRIGATORIA:",
+        dados);
+
+    return dados;
 }
 
 // =====================================================
