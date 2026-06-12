@@ -8,6 +8,8 @@ let jogoEncerrado = false;
 const tabuleiroDiv =
     document.getElementById("tabuleiro");
 
+const btnDesfazer = document.getElementById("btn-desfazer");
+
 // =====================================================
 // CARREGAR TABULEIRO
 // =====================================================
@@ -25,6 +27,9 @@ async function carregarTabuleiro() {
     carregarTurno();
 
     carregarVitoria();
+
+    // NOVO: Sempre atualiza o estado do botão ao recarregar a tela
+    atualizarBotaoDesfazer();
 }
 
 // =====================================================
@@ -174,6 +179,19 @@ async function desfazerJogada() {
 }
 
 // =====================================================
+// ATUALIZAR STATUS DO BOTÃO DESFAZER (NOVA FUNÇÃO)
+// =====================================================
+async function atualizarBotaoDesfazer() {
+    if (!btnDesfazer) return; // Segurança caso o ID esteja diferente no HTML
+
+    const resposta = await fetch("/jogo/pode-desfazer");
+    const podeDesfazer = await resposta.json();
+
+    // Se NÃO puder desfazer (podeDesfazer === false), ativa o disabled do HTML
+    btnDesfazer.disabled = !podeDesfazer;
+}
+
+// =====================================================
 // REINICIAR
 // =====================================================
 
@@ -194,57 +212,32 @@ async function reiniciarJogo() {
 }
 
 // =====================================================
-// MOSTRAR MOVIMENTOS
+// MOSTRAR MOVIMENTOS (Consultando o Java)
 // =====================================================
 
-function mostrarMovimentosPossiveis(
-    linha,
-    coluna,
-    tabuleiro) {
-
+async function mostrarMovimentosPossiveis(linhaOrigem, colunaOrigem) {
     limparMovimentos();
 
-    movimentosPossiveis = [];
+    // Pergunta ao Java quais são os movimentos válidos para essa peça
+    const resposta = await fetch(`/jogo/movimentos-validos?linha=${linhaOrigem}&coluna=${colunaOrigem}`);
+    const movimentos = await resposta.json();
 
-    for (let destinoLinha = 0;
-        destinoLinha < 8;
-        destinoLinha++) {
+    // Pinta cada casa que o Java devolver
+    movimentos.forEach(mov => {
+        const destinoLinha = mov[0];
+        const destinoColuna = mov[1];
 
-        for (let destinoColuna = 0;
-            destinoColuna < 8;
-            destinoColuna++) {
+        const casa = document.querySelectorAll(".casa")[destinoLinha * 8 + destinoColuna];
 
-            const diferenca =
-                Math.abs(
-                    destinoLinha - linha);
+        // Dica visual: na dama clássica, se a peça anda 2 ou mais casas, costuma ser captura
+        const diferenca = Math.abs(destinoLinha - linhaOrigem);
 
-            // movimento ou captura
-            if (diferenca >= 1 &&
-                diferenca <= 7) {
-
-                movimentosPossiveis.push({
-                    linha: destinoLinha,
-                    coluna: destinoColuna
-                });
-
-                const casa =
-                    document.querySelectorAll(".casa")
-                    [destinoLinha * 8 + destinoColuna];
-
-                // captura
-                if (diferenca >= 2) {
-
-                    casa.classList
-                        .add("captura-possivel");
-
-                } else {
-
-                    casa.classList
-                        .add("movimento-possivel");
-                }
-            }
+        if (diferenca >= 2) {
+            casa.classList.add("captura-possivel"); // Borda vermelha
+        } else {
+            casa.classList.add("movimento-possivel"); // Borda verde limão
         }
-    }
+    });
 }
 
 // =====================================================
@@ -300,6 +293,8 @@ async function clicarCasa(
 
         console.log("Peça selecionada");
 
+        // NOVO: Chama a função para acender o tabuleiro!
+        mostrarMovimentosPossiveis(linha, coluna);
 
         return;
     }
@@ -341,6 +336,9 @@ async function clicarCasa(
             casaSelecionada.classList
                 .remove("selecionada");
         }
+
+        // NOVO: Limpa as cores verde e vermelha depois que a peça se move
+        limparMovimentos();
 
         const capturaObrigatoria =
             await obterCapturaObrigatoria();

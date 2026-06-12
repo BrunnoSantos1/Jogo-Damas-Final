@@ -221,21 +221,29 @@ public class JogoController {
 
     @PostMapping("/desfazer")
     public int[][] desfazer() {
-
         Tabuleiro tabuleiro = jogoService.getTabuleiro();
 
-        // 1. Restaura a matriz do tabuleiro para a última foto
-        historicoService.desfazer(tabuleiro);
+        // 1. Tenta restaurar a matriz do tabuleiro e guarda o resultado
+        boolean desfezComSucesso = historicoService.desfazer(tabuleiro);
 
-        // 2. Volta o turno para o outro jogador (já que desfez a jogada)
-        jogoService.trocarTurno();
-
-        // 3. Limpa qualquer captura obrigatória que tenha ficado presa na jogada desfeita
-        jogoService.limparCapturaObrigatoria();
-
-        System.out.println("JOGADA DESFEITA COM SUCESSO");
+        // 2. SÓ altera as regras de turno se REALMENTE havia uma jogada para desfazer
+        if (desfezComSucesso) {
+            jogoService.trocarTurno();
+            jogoService.limparCapturaObrigatoria();
+            System.out.println("JOGADA DESFEITA COM SUCESSO");
+        } else {
+            System.out.println("NÃO HÁ JOGADAS PARA DESFAZER - TURNO MANTIDO");
+        }
 
         return tabuleiro.getTabuleiro();
+    }
+
+    // =====================================================
+    // VERIFICAR SE PODE DESFAZER (NOVO ENDPOINT)
+    // =====================================================
+    @GetMapping("/pode-desfazer")
+    public boolean podeDesfazer() {
+        return !historicoService.isVazio();
     }
 
     // =====================================================
@@ -246,9 +254,40 @@ public class JogoController {
     public int[][] reiniciar() {
 
         jogoService.reiniciarJogo();
+        historicoService.limpar(); // Evita que o usuário desfaça jogadas da partida anterior!
 
         return jogoService
                 .getTabuleiro()
                 .getTabuleiro();
+    }
+
+    // =====================================================
+    // MOVIMENTOS VÁLIDOS (NOVO ENDPOINT)
+    // =====================================================
+
+    @GetMapping("/movimentos-validos")
+    public java.util.List<int[]> movimentosValidos(
+            @RequestParam int linha,
+            @RequestParam int coluna) {
+
+        java.util.List<int[]> validos = new java.util.ArrayList<>();
+        Tabuleiro tabuleiro = jogoService.getTabuleiro();
+        int jogadorAtual = jogoService.getJogadorAtual();
+        boolean capturaEmSequencia = jogoService.getLinhaCapturaObrigatoria() != null;
+
+        // Testa todas as 64 casas do tabuleiro
+        for (int dLinha = 0; dLinha < 8; dLinha++) {
+            for (int dColuna = 0; dColuna < 8; dColuna++) {
+
+                boolean valido = movimentoService.movimentoValido(
+                        tabuleiro, linha, coluna, dLinha, dColuna, jogadorAtual, capturaEmSequencia);
+
+                if (valido) {
+                    // Se o movimento for válido, adiciona as coordenadas na lista
+                    validos.add(new int[]{dLinha, dColuna});
+                }
+            }
+        }
+        return validos;
     }
 }

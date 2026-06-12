@@ -15,11 +15,23 @@ public class HistoricoService {
         historico.push(tabuleiro.salvar());
     }
 
-    // Chame isso quando o usuário clicar no botão "Desfazer"
-    public void desfazer(Tabuleiro tabuleiro) {
+    // ALTERADO: Agora retorna true se desfez algo, ou false se a pilha estava vazia
+    public boolean desfazer(Tabuleiro tabuleiro) {
         if (!historico.isEmpty()) {
             TabuleiroMemento ultimaFoto = historico.pop();
             tabuleiro.restaurar(ultimaFoto);
+            return true;
         }
+        return false;
+    }
+
+    // NOVO: Verifica se o histórico está vazio
+    public boolean isVazio() {
+        return historico.isEmpty();
+    }
+
+    // NOVO: Limpa o histórico (essencial para quando reiniciar o jogo)
+    public void limpar() {
+        historico.clear();
     }
 }
