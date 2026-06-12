@@ -2,6 +2,7 @@ package com.damas.controller;
 
 import com.damas.dto.MovimentoDTO;
 import com.damas.model.Tabuleiro;
+import com.damas.service.HistoricoService;
 import com.damas.service.JogoService;
 import com.damas.service.MovimentoService;
 
@@ -17,6 +18,9 @@ public class JogoController {
 
     @Autowired
     private MovimentoService movimentoService;
+
+    @Autowired
+    private HistoricoService historicoService;
 
     // =====================================================
     // TABULEIRO
@@ -144,6 +148,8 @@ public class JogoController {
             return tabuleiro.getTabuleiro();
         }
 
+        historicoService.salvarEstado(tabuleiro);
+
         boolean capturou = movimentoService.capturarPeca(
                 tabuleiro,
                 movimento.getOrigemLinha(),
@@ -207,6 +213,29 @@ public class JogoController {
                 jogoService.getLinhaCapturaObrigatoria(),
                 jogoService.getColunaCapturaObrigatoria()
         };
+    }
+
+    // =====================================================
+    // DESFAZER JOGADA
+    // =====================================================
+
+    @PostMapping("/desfazer")
+    public int[][] desfazer() {
+
+        Tabuleiro tabuleiro = jogoService.getTabuleiro();
+
+        // 1. Restaura a matriz do tabuleiro para a última foto
+        historicoService.desfazer(tabuleiro);
+
+        // 2. Volta o turno para o outro jogador (já que desfez a jogada)
+        jogoService.trocarTurno();
+
+        // 3. Limpa qualquer captura obrigatória que tenha ficado presa na jogada desfeita
+        jogoService.limparCapturaObrigatoria();
+
+        System.out.println("JOGADA DESFEITA COM SUCESSO");
+
+        return tabuleiro.getTabuleiro();
     }
 
     // =====================================================

@@ -152,6 +152,26 @@ async function carregarVitoria() {
         jogoEncerrado = true;
     }
 }
+// =====================================================
+// DESFAZER JOGADA
+// =====================================================
+async function desfazerJogada() {
+    await fetch("/jogo/desfazer", {
+        method: "POST"
+    });
+
+    // Limpa a seleção atual para evitar bugs visuais
+    origemLinha = null;
+    origemColuna = null;
+    if (casaSelecionada) {
+        casaSelecionada.classList.remove("selecionada");
+        casaSelecionada = null;
+    }
+    limparMovimentos();
+
+    // Recarrega o tabuleiro com a matriz antiga que o backend devolveu
+    carregarTabuleiro();
+}
 
 // =====================================================
 // REINICIAR

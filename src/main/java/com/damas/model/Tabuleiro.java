@@ -69,4 +69,19 @@ public class Tabuleiro {
 
         tabuleiro[linha][coluna] = TipoPeca.VAZIO;
     }
+
+    // Cria o Memento (Tira a foto)
+    public TabuleiroMemento salvar() {
+        return new TabuleiroMemento(this.tabuleiro);
+    }
+
+    // Restaura o Memento (Volta no tempo)
+    public void restaurar(TabuleiroMemento memento) {
+        int[][] estadoAntigo = memento.getEstadoSalvo();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                this.tabuleiro[i][j] = estadoAntigo[i][j];
+            }
+        }
+    }
 }

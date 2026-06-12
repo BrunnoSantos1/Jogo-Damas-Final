@@ -55,7 +55,11 @@ public class LeiMaioriaService {
     private int calcularCapturaDama(
         Tabuleiro tabuleiro,
         int linha,
-        int coluna)
+        int coluna){
+
+        // TODO: Terminar a lógica da Dama!
+        return 0;
+    }
 
     public int calcularMaiorSequenciaCaptura(
             Tabuleiro tabuleiro,
